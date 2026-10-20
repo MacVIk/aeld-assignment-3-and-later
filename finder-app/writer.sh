@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ "$#" -ne 2 ]; then
-    echo "Error: less than 2 argumbets" >&2
+    echo "Error: less than 2 arguments" >&2
     exit 1
 fi
 
