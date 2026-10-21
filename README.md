@@ -15,7 +15,7 @@ Some assignments require further setup to pull in example code or make other cha
 
 ## Testing
 
-[![assignment-test](https://github.com/MacVIk/aeld-assignment-1/actions/workflows/github-actions.yml/badge.svg)](https://github.com/MacVIk/aeld-assignment-1/actions/workflows/github-actions.yml)
+[![assignment-test](https://github.com/MacVIk/aeld-assignment-3-and-later/actions/workflows/github-actions.yml/badge.svg)](https://github.com/MacVIk/aeld-assignment-3-and-later/actions/workflows/github-actions.yml)
 
 The basis of the automated test implementation for this repository comes from [https://github.com/cu-ecen-aeld/assignment-autotest/](https://github.com/cu-ecen-aeld/assignment-autotest/)
 
