@@ -14,6 +14,8 @@ ARCH=arm64
 CROSS_COMPILE=aarch64-none-linux-gnu-
 SYS_ROOT=$(${CROSS_COMPILE}gcc --print-sysroot)
 
+apt install fakeroot -y
+
 if [ $# -lt 1 ]
 then
 	echo "Using default directory ${OUTDIR} for output"
@@ -63,7 +65,7 @@ mkdir -p var/log
 cd "$OUTDIR"
 if [ ! -d "${OUTDIR}/busybox" ]
 then
-git clone git://busybox.net/busybox.git
+git clone https://github.com/vda-linux/busybox_mirror.git "${OUTDIR}/busybox"
     cd busybox
     git checkout ${BUSYBOX_VERSION}
     make distclean
@@ -72,7 +74,7 @@ else
     cd busybox
 fi
 
-make ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE}
+make ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} -j$(nproc)
 make ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} CONFIG_PREFIX="${OUTDIR}/rootfs" install
 
 cd ${OUTDIR}/rootfs
@@ -85,14 +87,6 @@ cp -L "${SYS_ROOT}/lib/ld-linux-aarch64.so.1" "${OUTDIR}/rootfs/lib/"
 cp -L "${SYS_ROOT}/lib64/libm.so.6" "${OUTDIR}/rootfs/lib64/"
 cp -L "${SYS_ROOT}/lib64/libresolv.so.2" "${OUTDIR}/rootfs/lib64/"
 cp -L "${SYS_ROOT}/lib64/libc.so.6" "${OUTDIR}/rootfs/lib64/"
-
-
-if [ ! -e dev/null ]; then
-    sudo mknod -m 666 ${OUTDIR}/rootfs/dev/null c 1 3
-fi 
-if [ ! -e dev/console ]; then
-    sudo mknod -m 600 ${OUTDIR}/rootfs/dev/console c 5 1
-fi
 
 cd ${FINDER_APP_DIR}
 make clean
@@ -109,5 +103,9 @@ mkdir -p ${OUTDIR}/rootfs/conf
 cp -r conf/* ${OUTDIR}/rootfs/conf/
 
 cd ${OUTDIR}/rootfs
-sudo chown -R root:root *
-find . | cpio -H newc -ov --owner root:root | gzip -9 > "${OUTDIR}/initramfs.cpio.gz"
+
+fakeroot sh -c "
+    mknod -m 666 \"${OUTDIR}/rootfs/dev/null\" c 1 3
+    mknod -m 600 \"${OUTDIR}/rootfs/dev/console\" c 5 1
+    find . | cpio -H newc -ov --owner root:root | gzip -9 > \"${OUTDIR}/initramfs.cpio.gz\"
+"
