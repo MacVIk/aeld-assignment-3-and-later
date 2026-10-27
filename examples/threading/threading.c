@@ -23,6 +23,7 @@ void* threadfunc(void* context)
     }
 
     struct thread_data* self = (struct thread_data*)context;
+    self->thread_complete_success = false;
 
     usleep(self->wait_to_obtain_ms * 1000);
     if (pthread_mutex_lock(self->mutex)) {
@@ -33,6 +34,7 @@ void* threadfunc(void* context)
     usleep(self->wait_to_release_ms * 1000);
     if (pthread_mutex_unlock(self->mutex)) {
         perror("Unable to unlock mutex");
+        return self;
     }
 
     self->thread_complete_success = true;
@@ -63,6 +65,7 @@ bool start_thread_obtaining_mutex(pthread_t *thread, pthread_mutex_t *mutex,int 
     if (resThread) {
         errno = resThread;
         perror("Unable to create the thread");
+        free(data);
         return false;
     }
 
